@@ -25,7 +25,7 @@ async def start(message):
 async def all_message(message):
     # для ответа на сообщение обращаемся к ожидающему методу функции message.answer
     await message.answer('Введите команду /start, чтобы начать общение.')
-    # print('Введите команду /start, чтобы начать общение.')  # Вывод в консоль
+    # print('Введите команду /start, чтобы начать общение.') # Вывод в консоль
 
 
 if __name__ == "__main__":
