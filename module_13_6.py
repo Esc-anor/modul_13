@@ -11,7 +11,7 @@ import asyncio
 
 """ api ключ, который мы получили в «BotFather». Переменная бота,
     хранящая объект бота, «token» будет равен вписанному ключу"""
-api = "7587944281:AAFhU2Yu_8kpytrEUx25ulSPZnMZDh04S8w"
+api = ""
 bot = Bot(token=api)
 """ Переменная dp объекта «Dispatcher», у него наш бот в
     качестве аргументов. В качестве «Storage» будет «MemoryStorage»"""
