@@ -6,10 +6,8 @@ from aiogram.dispatcher import FSMContext
 # блок из aiogram для работы с клавиатурой и объект кнопки
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 import asyncio
+from bot import *
 
-""" api ключ, который мы получили в «BotFather». Переменная бота,
-    хранящая объект бота, «token» будет равен вписанному ключу"""
-api = ""  # ввод вашего api полученный в @BotFather
 bot = Bot(token=api)
 """ Переменная dp объекта «Dispatcher», у него наш бот в
     качестве аргументов. В качестве «Storage» будет «MemoryStorage»"""

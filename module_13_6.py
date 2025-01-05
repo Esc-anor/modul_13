@@ -8,10 +8,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
-
+from bot import *
 """ api ключ, который мы получили в «BotFather». Переменная бота,
     хранящая объект бота, «token» будет равен вписанному ключу"""
-api = ""
+
 bot = Bot(token=api)
 """ Переменная dp объекта «Dispatcher», у него наш бот в
     качестве аргументов. В качестве «Storage» будет «MemoryStorage»"""
