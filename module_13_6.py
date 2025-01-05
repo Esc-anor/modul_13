@@ -1,37 +1,38 @@
 # импорт необходимых библиотек и методов
+import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 # блок из aiogram для работы с клавиатурой и объект кнопки
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
 
 """ api ключ, который мы получили в «BotFather». Переменная бота,
     хранящая объект бота, «token» будет равен вписанному ключу"""
-api = ""  # ввод вашего api полученный в @BotFather
+api = "7587944281:AAFhU2Yu_8kpytrEUx25ulSPZnMZDh04S8w"
 bot = Bot(token=api)
 """ Переменная dp объекта «Dispatcher», у него наш бот в
     качестве аргументов. В качестве «Storage» будет «MemoryStorage»"""
 dp = Dispatcher(bot, storage=MemoryStorage())
-# объявление переменной kb (клавиатуры) экземпляр ReplyKeyboardMarkup с параметрами
+
 kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-kb1 = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+kb1 = InlineKeyboardMarkup(resize_keyboard=True)
+kb2 = ReplyKeyboardMarkup(resize_keyboard=True)
 # объявление переменной "кнопка с текстом"
-button = KeyboardButton(text='Информация')
 button1 = KeyboardButton(text='Рассчитать')
-button2 = KeyboardButton(text='М')
-button3 = KeyboardButton(text='Ж')
-# добавление созданной кнопки в клавиатуру по одной в ряд
-# kb.add(button)
-# kb.add(button2)
-# добавление созданных кнопок в ряд в клавиатуру разом
-kb.row(button, button1)
-kb1.row(button2, button3)
+button2 = KeyboardButton(text='Информация')
+button3 = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
+button4 = InlineKeyboardButton(text='Формулы расчёта', callback_data='formulas')
+button5 = KeyboardButton(text='М')
+button6 = KeyboardButton(text='Ж')
 
+# добавление кнопки в сообщение
+kb.row(button1, button2)
+kb1.add(button3, button4)
+kb2.row(button5, button6)
 
-# добавление созданной кнопки в конец последнего ряда
-# kb.insert(button)
 
 # объявление класса состояния UserState наследованный от StatesGroup
 class UserState(StatesGroup):
@@ -42,21 +43,44 @@ class UserState(StatesGroup):
     gender = State()  # пол
 
 
-# обработчик начала общения с ботом
+# обработчик начала общения с ботом (команды /start)
 @dp.message_handler(commands=['start'])
 # функция старта
 async def start(message):
     # дополнение методом reply_markup для отображения клавиатуры kb
-    await message.reply('Привет! Я бот помогающий вашему здоровью.\n'
-                        'Нажмите одну из кнопок для продолжения', reply_markup=kb)
+    await message.answer('Привет! Я бот помогающий вашему здоровью.\n'
+                         'Нажмите одну из кнопок для продолжения', reply_markup=kb)
 
 
 # обработчик ожидания нажатия кнопки «Рассчитать»
 @dp.message_handler(text=['Рассчитать'], state=None)
 # функция получения возраста пользователя
-async def set_age(message: types.Message, state: FSMContext):
-    # ожидание сообщения от кнопки рассчитать и вывод текста
-    await message.reply('Введите свой возраст (Полных лет):')
+async def main_menu(message: types.Message):
+    # ожидание нажатия кнопок выбора
+    await message.reply('Выберите опцию:', reply_markup=kb1)
+    # ожидание останова данной функции
+    # await call.answer()
+
+
+# обработчик ожидания нажатия кнопки «Формулы расчёта»
+@dp.callback_query_handler(text=['formulas'])
+# функция вывода расчётной формулы
+async def get_formula(call: types.CallbackQuery):
+    await call.message.answer('Формула расчёта Миффлина-Сан Жеора:\n'
+                              '(10*вес + 6.25*рост + 5*возраст + 5) - для мужчин\n'
+                              '(10*вес + 6.25*рост + 5*возраст - 161) - для женщин')
+    # ожидание останова данной функции
+    await call.answer()
+
+
+# обработчик ожидания нажатия кнопки «Рассчитать»
+@dp.callback_query_handler(text=['calories'])
+# функция получения возраста пользователя
+async def set_age(call: types.CallbackQuery):
+    # ожидание сообщения Calories и вывод текста
+    await call.message.answer('Ваш возраст (полных лет):')
+    # ожидание останова данной функции
+    await call.answer()
     # ожидание ввода возраста
     await UserState.age.set()
 
@@ -68,7 +92,7 @@ async def set_growth(message: types.Message, state: FSMContext):
     # ожидание сохранение сообщения возраста от пользователя в базе данных состояния
     await state.update_data(age_=message.text)
     # ожидание вывода текста
-    await message.reply('Введите свой рост (см):')
+    await message.answer('Введите свой рост (см):')
     # ожидание ввода роста
     await UserState.growth.set()
 
@@ -80,7 +104,7 @@ async def set_weight(message: types.Message, state: FSMContext):
     # ожидание сохранение сообщения роста от пользователя в базе данных состояния
     await state.update_data(growth_=message.text)
     # ожидание вывода текста
-    await message.reply('Введите свой вес (кг):')
+    await message.answer('Введите свой вес (кг):')
     # ожидание ввода веса
     await UserState.weight.set()
 
@@ -92,7 +116,7 @@ async def set_gender(message: types.Message, state: FSMContext):
     # ожидание сохранение сообщения веса от пользователя в базе данных состояния
     await state.update_data(weight_=message.text)
     # ожидание вывода текста
-    await message.reply('Введите свой пол (М / Ж):', reply_markup=kb1)
+    await message.reply('Введите свой пол (М / Ж):', reply_markup=kb2)
     # ожидание ввода пола
     await UserState.gender.set()
 
